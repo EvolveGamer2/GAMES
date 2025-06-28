@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>✊ Rock Paper Scissors ✋✌️</h1>
+        <div style="text-align: center;">
+            <div id="rpsScore">You: 0 | Computer: 0</div>
+            <div id="rpsResult">Choose your weapon!</div>
+            
+            <div class="rps-choices">
+                <button class="rps-btn" data-choice="rock">✊</button>
+                <button class="rps-btn" data-choice="paper">✋</button>
+                <button class="rps-btn" data-choice="scissors">✌️</button>
+            </div>
+            
+            <div id="computerChoice"></div>
+            
+            <div style="margin-top: 20px;">
+                <button id="resetRPS" class="play-button">Reset Score</button>
+                <a href="index.html" class="play-button">Back to All Games</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('.rps-btn');
+        const resultDiv = document.getElementById('rpsResult');
+        const scoreDiv = document.getElementById('rpsScore');
+        const computerChoiceDiv = document.getElementById('computerChoice');
+        const resetButton = document.getElementById('resetRPS');
+        
+        let playerScore = 0;
+        let computerScore = 0;
+        
+        const choices = ['rock', 'paper', 'scissors'];
+        const emojis = {
+            rock: '✊',
+            paper: '✋',
+            scissors: '✌️'
+        };
+        
+        // Game logic
+        function playGame(playerChoice) {
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            
+            // Display choices
+            computerChoiceDiv.innerHTML = `
+                <p>You chose: ${emojis[playerChoice]}</p>
+                <p>Computer chose: ${emojis[computerChoice]}</p>
+            `;
+            
+            // Determine winner
+            if(playerChoice === computerChoice) {
+                resultDiv.textContent = "It's a tie!";
+            } else if(
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                resultDiv.textContent = "You win!";
+                playerScore++;
+            } else {
+                resultDiv.textContent = "Computer wins!";
+                computerScore++;
+            }
+            
+            // Update score
+            scoreDiv.textContent = `You: ${playerScore} | Computer: ${computerScore}`;
+        }
+        
+        // Event listeners
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                playGame(button.dataset.choice);
+            });
+        });
+        
+        resetButton.addEventListener('click', () => {
+            playerScore = 0;
+            computerScore = 0;
+            scoreDiv.textContent = `You: ${playerScore} | Computer: ${computerScore}`;
+            resultDiv.textContent = "Choose your weapon!";
+            computerChoiceDiv.innerHTML = "";
+        });
+    </script>
+</body>
+</html>
