@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            margin: 20px auto;
+            width: 440px;
+        }
+        .memory-card {
+            width: 100px;
+            height: 100px;
+            background: #3498db;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            color: white;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: all 0.5s;
+            position: relative;
+        }
+        .memory-card.flipped {
+            transform: rotateY(180deg);
+            background: #2ecc71;
+        }
+        #moves {
+            text-align: center;
+            font-size: 20px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Memory Game</h1>
+        <div id="moves">Moves: 0</div>
+        <div class="memory-game" id="memoryGame"></div>
+        <div style="text-align: center;">
+            <button id="resetMemory" class="play-button">Reset Game</button>
+            <a href="index.html" class="play-button">Back to All Games</a>
+        </div>
+    </div>
+
+    <script>
+        const memoryGame = document.getElementById("memoryGame");
+        const movesDisplay = document.getElementById("moves");
+        const resetButton = document.getElementById("resetMemory");
+        
+        const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+        let cards = [...emojis, ...emojis];
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let moves = 0;
+        
+        function shuffleCards() {
+            for(let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+        }
+        
+        function createBoard() {
+            shuffleCards();
+            memoryGame.innerHTML = "";
+            moves = 0;
+            movesDisplay.textContent = "Moves: 0";
+            
+            cards.forEach((emoji, index) => {
+                const card = document.createElement("div");
+                card.classList.add("memory-card");
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.addEventListener("click", flipCard);
+                memoryGame.appendChild(card);
+            });
+        }
+        
+        function flipCard() {
+            if(lockBoard) return;
+            if(this === firstCard) return;
+            
+            this.classList.add("flipped");
+            this.textContent = this.dataset.emoji;
+            
+            if(!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+            
+            secondCard = this;
+            moves++;
+            movesDisplay.textContent = "Moves: " + moves;
+            checkForMatch();
+        }
+        
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+            
+            if(isMatch) {
+                disableCards();
+                checkGameOver();
+            } else {
+                unflipCards();
+            }
+        }
+        
+        function disableCards() {
+            firstCard.removeEventListener("click", flipCard);
+            secondCard.removeEventListener("click", flipCard);
+            
+            resetBoard();
+        }
+        
+        function unflipCards() {
+            lockBoard = true;
+            
+            setTimeout(() => {
+                firstCard.classList.remove("flipped");
+                secondCard.classList.remove("flipped");
+                firstCard.textContent = "";
+                secondCard.textContent = "";
+                
+                resetBoard();
+            }, 1000);
+        }
+        
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+        
+        function checkGameOver() {
+            const flippedCards = document.querySelectorAll(".flipped");
+            if(flippedCards.length === cards.length) {
+                setTimeout(() => {
+                    alert(`Congratulations! You won in ${moves} moves!`);
+                }, 500);
+            }
+        }
+        
+        resetButton.addEventListener("click", createBoard);
+        
+        createBoard();
+    </script>
+</body>
+</html>
